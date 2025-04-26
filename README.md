@@ -9,7 +9,7 @@ The goal of this project is to develop a system that allows for hand gesture rec
 ## Paper Reference
 
 ### Multi-scale Spatial–Temporal Convolutional Neural Network for Skeleton-based Action Recognition  
-May 2023. *Pattern Analysis and Applications*,
+May 2023. *Pattern Analysis and Applications*<br>
 DOI: [10.1007/s10044-023-01156-w](https://doi.org/10.1007/s10044-023-01156-w)
 
 ## Dataset
