@@ -70,32 +70,3 @@ class MSST_Layer(Layer):
         keys = ['filter1', 'filter2', 'filter3', 'filter4', 'filter5']
         config.update({'stride': self.stride, **{k: v for k, v in zip(keys, self.filters)}})
         return config
-
-def build_model(input_shape):
-    model = Sequential()
-    model.add(InputLayer(input_shape = input_shape))
-
-    model.add(MSST_Layer(stride=(1,1), filter1=44, filter2=60, filter3=60, filter4=60,filter5=60))
-    model.add(MSST_Layer(stride=(1,1), filter1=48, filter2=80, filter3=80, filter4=80,filter5=80))
-    model.add(MSST_Layer(stride=(1,1), filter1=56, filter2=120, filter3=120, filter4=120,filter5=120))
-
-    model.add(AveragePooling2D(pool_size=(3,3), strides=(1,2)))
-    model.add(BatchNormalization())
-    model.add(ReLU())
-
-    model.add(MSST_Layer(stride=(1,1), filter1=160, filter2=160, filter3=160, filter4=160,filter5=160))
-    model.add(MSST_Layer(stride=(2,1), filter1=72, filter2=200, filter3=200, filter4=200,filter5=200))
-
-    model.add(AveragePooling2D(pool_size=(3,3), strides=(1,2)))
-    model.add(BatchNormalization())
-    model.add(ReLU())
-
-    model.add(MSST_Layer(stride=(1,1), filter1=240, filter2=240, filter3=240, filter4=240,filter5=240))
-    model.add(MSST_Layer(stride=(1,1), filter1=320, filter2=320, filter3=320, filter4=320,filter5=320))
-
-    model.add(GlobalAveragePooling2D())
-    model.add(BatchNormalization())
-    model.add(ReLU())
-
-    model.add(Dense(18, activation='softmax'))
-    return model
