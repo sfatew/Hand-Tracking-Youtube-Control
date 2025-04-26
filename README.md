@@ -16,7 +16,7 @@ DOI: [10.1007/s10044-023-01156-w](https://doi.org/10.1007/s10044-023-01156-w)
 
 The dataset used for training the model is MSSTNET, which includes various skeleton-based data that helps in recognizing hand gestures.
 
-### MSSTNET Dataset  
+### MSSTNET Train Dataset  
 You can download the dataset from Kaggle:  
 [MSSTNET Dataset on Kaggle](https://www.kaggle.com/datasets/joemum/msstnetdataset)
 
