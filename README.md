@@ -4,9 +4,12 @@ This project leverages computer vision techniques to track hand motion and contr
 
 ## Overview
 
-The goal of this project is to develop a system that allows for hand gesture recognition using multi-scale spatial-temporal convolutional neural networks. The system tracks hand movements and translates them into computer commands, offering a hands-free way to interact with digital devices.
+The goal of this project is to develop a system that allows for hand gesture recognition using DSCNet. The system tracks hand movements and translates them into computer commands, offering a hands-free way to interact with digital devices.
 
 ## Paper Reference
+
+### A Dense-Sparse Complementary Network for Human Action Recognition based on RGB and Skeleton Modalities
+(https://www.sciencedirect.com/science/article/abs/pii/S0957417423035637)
 
 ### Multi-scale Spatial–Temporal Convolutional Neural Network for Skeleton-based Action Recognition  
 May 2023. *Pattern Analysis and Applications*<br>
