@@ -22,7 +22,8 @@ You can download the dataset from Kaggle:
 
 ## Model
 
-The model used for recognizing hand gestures is based on MSSTNET and can be accessed from Kaggle as well.
+The models used for recognizing hand gestures can be access via thesse link.
+To use these model, simnply create a model folder in the respected directory and put them in there
 
 ### MSSTNET Model  
 You can download or explore the MSSTNET model from:  
