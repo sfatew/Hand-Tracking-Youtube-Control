@@ -33,5 +33,5 @@ You can download or explore the MSSTNET model from:
 [MSSTNET Model on Kaggle](https://www.kaggle.com/models/joemum/mssnet_model)
 
 ### STMEM+ResNet Model
-(https://drive.google.com/file/d/18S8gpzzmWoBoKfEFyigjb8G8pAp7gA_g/view?usp=sharing)
+[STMEM+ResNet Model](https://drive.google.com/file/d/18S8gpzzmWoBoKfEFyigjb8G8pAp7gA_g/view?usp=sharing)
 
