@@ -14,11 +14,11 @@ DOI: [10.1007/s10044-023-01156-w](https://doi.org/10.1007/s10044-023-01156-w)
 
 ## Dataset
 
-The dataset used for training the model is MSSTNET, which includes various skeleton-based data that helps in recognizing hand gestures.
+The dataset used for training the model is Jester, which includes various video data that helps in recognizing hand action.
 
 ### MSSTNET Train Dataset  
 You can download the dataset from Kaggle:  
-[MSSTNET Dataset on Kaggle](https://www.kaggle.com/datasets/joemum/msstnetdataset)
+[20bn-jester Dataset on Kaggle](https://www.kaggle.com/datasets/toxicmender/20bn-jester)
 
 ## Model
 
