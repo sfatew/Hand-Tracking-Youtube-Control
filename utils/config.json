@@ -1,4 +1,6 @@
 {
+  "Rolling Hand Backward": "ctrl+left",
+  "Rolling Hand Forward": "ctrl+right",
   "Shaking Hand": "stop",
   "Sliding Two Fingers Down": "down",
   "Sliding Two Fingers Up": "up",
@@ -10,5 +12,7 @@
   "Swiping Left": "alt+left",
   "Swiping Right": "alt+right",
   "Thumb Down": "m",
-  "Thumb Up": "f"
+  "Thumb Up": "f",
+  "Turning Hand Clockwise": "shift+dot",
+  "Turning Hand Counterclockwise": "shift+comma"
 }

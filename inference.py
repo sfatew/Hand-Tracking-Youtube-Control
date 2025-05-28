@@ -1,6 +1,6 @@
 import numpy as np
 from tensorflow import keras
-from utils.processing import output_process_msstnet, output_process_resnet
+from utils.processing import output_process_msstnet, output_process_resnet, output_process_shiftgcn
 from utils.mediapipe_utils import init_holistic
 import Skeleton.MSSTNET.model_implement.MSSTNET as MSSTNET
 from RGB.STMEMnResNet.STMEMinfer import load_model, preprocess_vid, classify
@@ -72,15 +72,38 @@ class ResNetModel(GestureModel):
         return label[0][0], -1  # Confidence not available for ResNet model
     
 class STMEMnResNetModel(GestureModel):
-    def __init__(self, model_path='best_model/STMEM_TSM_RestNet50.pth'):
+    def __init__(self, model_path='best_model/STMEM_TSM_RestNet50.pth', usage="standalone"):
         super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
         self.model = load_model(model_path=model_path, device=self.device, parallel=False)
         self.model.eval()
         self.model.to(self.device)
+        self.usage = usage
 
     def predict(self, frames):
         #frames = self.padding_frames(frames, 37)
         video_tensor = preprocess_vid(frames)
-        final_index = classify(self.model, video_tensor)
-        return self.actions[final_index], -1.
+        if self.usage == "standalone":
+            final_index = classify(self.model, video_tensor)
+            return self.actions[final_index], -1.
+        elif self.usage == "ensemble":
+            final_index, confidence = classify(self.model, video_tensor, usage=self.usage)
+            return self.actions[final_index], confidence
+    
+class ShiftGCNModel(GestureModel):
+    def __init__(self, model_path='best_model/best_model_shiftgcn.keras'):
+        super().__init__()
+        try:
+            from Skeleton.ShiftGCN.ShiftGCN import initialize_shift_gcn_model
+            self.model = initialize_shift_gcn_model()
+            self.model.load_weights(model_path)
+        except Exception as e:
+            print(f"Error loading model: {e}")
+            self.model = None
+
+    def predict(self, frames):
+        frames = self.padding_frames(frames, 37)
+        sequences = output_process_shiftgcn(frames, self.holistic)
+        output = self.model.predict(sequences)
+        final_index = np.argmax(output)
+        return self.actions[final_index], float(np.max(output))

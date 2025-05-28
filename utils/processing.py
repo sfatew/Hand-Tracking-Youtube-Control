@@ -138,3 +138,21 @@ def output_process_resnet(frames, model):
     normalize_sequence = resized_sequence.astype(np.float32) / 255.0
     
     return np.expand_dims(normalize_sequence, axis=0)  # Shape: (1, sequence_length, 128, 128, 3)
+
+
+def output_process_shiftgcn(frames, model):
+    SEQUENCE_LENGTH = 37
+    sequence = []
+    
+    # Process each frame to extract keypoints
+    for frame_num in range(0, SEQUENCE_LENGTH):
+        frame = frames[frame_num]
+        if frame is None:
+            print("IO Error")
+            continue
+        
+        image, res = mediapipe_detection(frame, model)
+        keypoints = extract_keypoint(res) 
+        sequence.append(keypoints)  # Shape: (sequence_length, 48, 3)
+    
+    return np.expand_dims(sequence, axis=0)  # Shape: (1, sequence_length, 48, 3)

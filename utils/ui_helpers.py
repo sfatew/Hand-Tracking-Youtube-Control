@@ -3,7 +3,7 @@ import numpy as np
 import time
 import dearpygui.dearpygui as dpg
 from collections import deque
-from inference import MSSTNETModel, ResNetModel, STMEMnResNetModel
+from inference import MSSTNETModel, ResNetModel, STMEMnResNetModel, ShiftGCNModel
 from utils.controller import ComputerController
 
 
@@ -11,7 +11,8 @@ models = {
     "MSSTNET": MSSTNETModel(),
     "3DResNet": ResNetModel(),
     "STMEM+ResNet": STMEMnResNetModel(),
-    "GCN": None
+    "STMEM+ResNet (ensemble)": STMEMnResNetModel(usage="ensemble"),
+    "ShiftGCN": ShiftGCNModel()
 }
 model_list = list(models.keys())
 
