@@ -1,8 +1,22 @@
 import numpy as np
 from tensorflow import keras
+from utils.processing import output_process
+from utils.mediapipe_utils import init_holistic
+import model_implement.MSSTNET as MSSTNET
 
 class GestureModel:
-    def __init__(self, paths, custom_objects=None):
+    def __init__(self, model_name='MSSTNET'):
+        if model_name == 'MSSTNET':
+            paths = [
+                "best_model/joint_stream.keras",
+                "best_model/joint_motion_stream.keras",
+                "best_model/bone_stream.keras",
+                "best_model/bone_motion_stream.keras"
+            ]
+            custom_objects = {'MSST_Layer': MSSTNET.MSST_Layer}
+        else:
+            model_paths = None
+            custom_objects = None
         self.models = [
             keras.models.load_model(path, custom_objects=custom_objects)
             for path in paths
@@ -14,12 +28,17 @@ class GestureModel:
             'Turning Hand Clockwise', 'Turning Hand Counterclockwise'
             ]
 
-    def predict(self, sequences):
-        # Run predictions on all 4 streams
-        outputs = [model.predict(seq) for model, seq in zip(self.models, sequences)]
-        avg_output = sum(outputs) / len(outputs)
-        final_index = np.argmax(avg_output)
-        return self.actions[final_index], float(np.max(avg_output))
+    def predict(self, frames, model_name='MSSTNET'):
+        if model_name == 'MSSTNET':
+            holistic = init_holistic()
+            sequences = output_process(frames, holistic)
+            # Run predictions on all 4 streams
+            outputs = [model.predict(seq) for model, seq in zip(self.models, sequences)]
+            avg_output = sum(outputs) / len(outputs)
+            final_index = np.argmax(avg_output)
+            return self.actions[final_index], float(np.max(avg_output))
+        else:
+            raise ValueError("Unsupported model name. Please use 'MSSTNET'.")
 
 class GestureModel_của_Minh:
     pass

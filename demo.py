@@ -6,22 +6,9 @@ import datetime
 
 # === Import your model and functions ===
 from inference import GestureModel
-from utils.processing import output_process
-from utils.mediapipe_utils import init_holistic
-import model_implement.MSSTNET as MSSTNET
-MSST_Layer = MSSTNET.MSST_Layer
 
-# === Load model ===
-model_paths = [
-    "best_model/joint_stream.keras",
-    "best_model/joint_motion_stream.keras",
-    "best_model/bone_stream.keras",
-    "best_model/bone_motion_stream.keras"
-]
-model = GestureModel(model_paths, custom_objects={'MSST_Layer': MSST_Layer})
 
-# === Init Holistic (e.g., Mediapipe) ===
-holistic = init_holistic()
+model = GestureModel()
 
 # === Constants ===
 SEQUENCE_LENGTH = 37
@@ -93,8 +80,7 @@ def run_inference(frames):
             needed = SEQUENCE_LENGTH - len(frames)
             frames.extend([last_frame] * needed)
 
-        sequences = output_process(frames, holistic)
-        label, conf = model.predict(sequences)
+        label, conf = model.predict(frames)
         pred_label = label
         confidence = conf
         print(f"Predicted label: {pred_label}, confidence: {confidence:.2f} from thread in {time.time() - start_prediction_time:.2f}s")

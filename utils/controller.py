@@ -1,4 +1,4 @@
-import pyautogui
+import keyboard
 import time
 import json
 import os
@@ -34,14 +34,16 @@ class ComputerController:
         self.execute_action(action)
         self.update_last_action_time()
 
+    import keyboard
+
     def execute_action(self, action):
-        if len(action) == 1:
-            pyautogui.press(action[0])
-        elif len(action) == 2:
-            pyautogui.hotkey(action[0], action[1])
-        elif len(action) == 3: # just for shaking hand action
-            pyautogui.hotkey(action[0], action[1])
-            pyautogui.press(action[2])
+        if action == "stop":
+            import dearpygui.dearpygui as dpg
+            dpg.stop_dearpygui()
+            return
+        else:
+            keyboard.press_and_release(action)
+
 
 if __name__ == "__main__":
     controller = ComputerController()

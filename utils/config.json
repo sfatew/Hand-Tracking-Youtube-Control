@@ -1,14 +1,14 @@
 {
-    "Shaking Hand": ["alt", "tab", "q"],
-    "Sliding Two Fingers Down": ["down"],
-    "Sliding Two Fingers Up": ["up"],
-    "Sliding Two Fingers Left": ["left"],
-    "Sliding Two Fingers Right": ["right"],
-    "Stop Sign": ["k"],
-    "Swiping Down": ["c"],
-    "Swiping Up": ["shift", "n"],
-    "Swiping Left": ["alt", "left"],
-    "Swiping Right": ["alt", "right"],
-    "Thumb Down": ["m"],
-    "Thumb Up": ["f"]
+  "Shaking Hand": "stop",
+  "Sliding Two Fingers Down": "down",
+  "Sliding Two Fingers Up": "up",
+  "Sliding Two Fingers Left": "left",
+  "Sliding Two Fingers Right": "right",
+  "Stop Sign": "k",
+  "Swiping Down": "c",
+  "Swiping Up": "shift+n",
+  "Swiping Left": "alt+left",
+  "Swiping Right": "alt+right",
+  "Thumb Down": "m",
+  "Thumb Up": "f"
 }
