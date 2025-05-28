@@ -1,0 +1,2 @@
+Model,Accuracy,Precision,Recall,F1 Score,AUC
+Shift-GCN,0.8641,0.8661,0.8641,0.8643,0.9930

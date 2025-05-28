@@ -1,0 +1,24 @@
+                               precision    recall  f1-score   support
+
+           Doing other things       0.79      0.88      0.83       671
+                   No gesture       0.90      0.91      0.90       240
+        Rolling Hand Backward       0.88      0.80      0.84       224
+         Rolling Hand Forward       0.85      0.86      0.85       216
+                 Shaking Hand       0.88      0.86      0.87       230
+     Sliding Two Fingers Down       0.93      0.90      0.92       238
+     Sliding Two Fingers Left       0.95      0.87      0.91       233
+    Sliding Two Fingers Right       0.85      0.84      0.84       231
+       Sliding Two Fingers Up       0.96      0.86      0.91       226
+                    Stop Sign       0.87      0.89      0.88       236
+                 Swiping Down       0.92      0.90      0.91       234
+                 Swiping Left       0.86      0.86      0.86       231
+                Swiping Right       0.84      0.87      0.86       211
+                   Swiping Up       0.91      0.92      0.91       227
+                   Thumb Down       0.91      0.92      0.91       231
+                     Thumb Up       0.88      0.89      0.88       227
+       Turning Hand Clockwise       0.77      0.72      0.75       185
+Turning Hand Counterclockwise       0.75      0.73      0.74       182
+
+                     accuracy                           0.86      4473
+                    macro avg       0.87      0.86      0.86      4473
+                 weighted avg       0.87      0.86      0.86      4473
