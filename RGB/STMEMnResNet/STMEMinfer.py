@@ -38,7 +38,9 @@ def load_model(model_path, device, parallel = False):
             new_state_dict[name] = v
         model.load_state_dict(new_state_dict)
 
-    model = model.eval().to(device)
+    if model is not None:
+        print(f"Model loaded from {model_path}")
+        
     return model
 
 def preprocess_vid(vid, frame_size=(128, 128), max_frames=36):

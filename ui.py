@@ -27,15 +27,11 @@ state = ProgramState(fps=vid.get(cv.CAP_PROP_FPS), skip_interval=1)
 with dpg.texture_registry(show=True):
     dpg.add_raw_texture(frame_width, frame_height, texture_data, tag="texture_tag", format=dpg.mvFormat_Float_rgb)
 
-with dpg.window(label="Example Window", width=600, height=450, tag="Primary Window"):
+with dpg.window(label="Main Window", width=800, height=450, tag="Primary Window"):
     dpg.add_text("FPS: is not updated", tag="fps_text")
-    dpg.add_radio_button(label="Select Gesture Model", items=model_list, horizontal=True, default_value=model_list[0], tag="model_selector", callback=state.set_model)
-    dpg.add_text(state.status_text, tag="status_text", color=(255, 0, 0))
-    dpg.add_text(f"Last gesture: {state.pred_label}", tag="last_gesture_text", color=(0, 255, 0))
-    dpg.add_image("texture_tag")
     dpg.add_slider_float(label="time to collect frames", 
                          default_value=state.time_to_collect_frames, 
-                         max_value=2.0, 
+                         max_value=3.0, 
                          min_value=0.5, 
                          width=300,
                          tag="time_to_collect_frames_slider")
@@ -46,6 +42,25 @@ with dpg.window(label="Example Window", width=600, height=450, tag="Primary Wind
                          width=300,
                          tag="cooldown_time_slider")
     dpg.add_button(label="Set values", callback=state.set_values_from_sliders)
+    dpg.add_radio_button(label="Select Gesture Model", items=model_list, horizontal=True, default_value=model_list[0], tag="model_selector", callback=state.set_model)
+    dpg.add_checkbox(label="Image Enhancement enabled", default_value=state.image_enhancement_enabled, tag="image_enhancement_checkbox", callback=state.toggle_image_enhancement)
+    dpg.add_text(state.status_text, tag="status_text", color=(255, 0, 0))
+    dpg.add_text(f"Last gesture: {state.pred_label}", tag="last_gesture_text", color=(0, 255, 0))
+    with dpg.group(horizontal=True):
+        dpg.add_image("texture_tag")
+        with dpg.plot(label="Color Histogram", height=-1, width=-1):
+            dpg.add_plot_legend()
+            dpg.add_plot_axis(dpg.mvXAxis, label="Pixel Value")
+            y_axis = dpg.add_plot_axis(dpg.mvYAxis, label="Frequency")
+
+            for col in ('b', 'g', 'r'):
+                dpg.add_line_series(
+                    list(range(256)),
+                    hist_data[col],
+                    label=col.upper(),
+                    tag=f"{col}_series",
+                    parent=y_axis
+                )
 
 dpg.show_metrics()
 dpg.show_viewport()
@@ -64,6 +79,9 @@ while dpg.is_dearpygui_running(): # collect -> predict -> cooldown -> reset buff
         print("Error: Could not read from camera.")
         dpg.stop_dearpygui()
         break
+
+    if state.image_enhancement_enabled:
+        frame = enhance_image(frame)
     
 
     if state.is_ready_for_prediction():
@@ -83,7 +101,10 @@ while dpg.is_dearpygui_running(): # collect -> predict -> cooldown -> reset buff
             state.frame_counter = 0
 
     _, _, texture_data = create_texture_data(frame)  # create texture data from the frame
-    
+
+    # create histogram data for the current frame
+    update_histogram(frame)
+
     dpg.set_value("texture_tag", texture_data)  # update the texture with the new frame data
     dpg.render_dearpygui_frame()
 

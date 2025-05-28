@@ -3,14 +3,14 @@ import numpy as np
 import time
 import dearpygui.dearpygui as dpg
 from collections import deque
-from inference import GestureModel
+from inference import MSSTNETModel, ResNetModel, STMEMnResNetModel
 from utils.controller import ComputerController
 
 
 models = {
-    "MSSTNET": GestureModel(model_name="MSSTNET"),
-    "3DResNet": None,
-    "STMEM+ResNet": None,
+    "MSSTNET": MSSTNETModel(),
+    "3DResNet": ResNetModel(),
+    "STMEM+ResNet": STMEMnResNetModel(),
     "GCN": None
 }
 model_list = list(models.keys())
@@ -38,16 +38,32 @@ class ProgramState:
         self.status_text = "Waiting for frames..."
         self.controller = ComputerController()
 
+        self.image_enhancement_enabled = False  # Flag for image enhancement
+
     def set_model(self):
         """Set the model name from the radio button selection."""
         self.model_name = dpg.get_value("model_selector")
         print(f"Selected model: {self.model_name}")
+        if self.model_name == "MSSTNET":
+            self.SEQUENCE_LENGTH = 37
+        elif self.model_name == "3DResNet":
+            self.SEQUENCE_LENGTH = 32
+        elif self.model_name == "STMEM+ResNet":
+            self.SEQUENCE_LENGTH = 36
+        elif self.model_name == "GCN":
+            self.SEQUENCE_LENGTH = 37
+
+        self.skip_interval = max(1, round(self.fps * self.time_to_collect_frames / self.SEQUENCE_LENGTH))
+        print(f"Sequence length set to {self.SEQUENCE_LENGTH}, skip interval changes to {self.skip_interval} frames.")
 
     def set_values_from_sliders(self):
         """Set values from the sliders."""
         self.time_to_collect_frames = dpg.get_value("time_to_collect_frames_slider")
         self.cooldown_time = dpg.get_value("cooldown_time_slider")
         print(f"Time to collect frames: {self.time_to_collect_frames}, Cooldown time: {self.cooldown_time}")
+        
+        self.skip_interval = max(1, round(self.fps * self.time_to_collect_frames / self.SEQUENCE_LENGTH))
+        print(f"Set values from sliders and updated skip interval: {self.skip_interval} frames.")
     
     def update_fps(self, cap, measure_interval = 1.5):
         """Estimate FPS once"""
@@ -117,16 +133,12 @@ class ProgramState:
 
         try:
             frames = list(self.frame_buffer)
-            if len(frames) < self.SEQUENCE_LENGTH:
-                last_frame = frames[-1]
-                needed = self.SEQUENCE_LENGTH - len(frames)
-                frames.extend([last_frame] * needed) 
-
-            label, conf = models[self.model_name].predict(frames, model_name=self.model_name)
+            start_prediction_time = time.time()
+            label, conf = models[self.model_name].predict(frames)
             self.pred_label = label
             self.confidence = conf
             self.last_prediction_time = time.time()
-            self.change_last_gesture_text(f"Last gesture: {self.pred_label} (Confidence: {self.confidence:.2f})")
+            self.change_last_gesture_text(f"Last gesture: {self.pred_label} (Confidence: {self.confidence:.2f} by {self.model_name} in {self.last_prediction_time - start_prediction_time:.2f}s)")
             
             self.controller.perform_action(self.pred_label)
         except Exception as e:
@@ -136,6 +148,54 @@ class ProgramState:
         
         self.is_predicting = False
 
+    def toggle_image_enhancement(self):
+        """Toggle image enhancement on or off."""
+        self.image_enhancement_enabled = not self.image_enhancement_enabled
+        dpg.set_value("image_enhancement_checkbox", self.image_enhancement_enabled)
+        if self.image_enhancement_enabled:
+            print("Image enhancement enabled.")
+        else:
+            print("Image enhancement disabled.")
+
+
+def enhance_image(frame): 
+    """Enhance the image by applying CLAHE and gamma correction.
+    Input frame is expected to be in BGR format.
+    The output will be in BGR format as well."""
+    if frame is None:
+        print("Error: Frame is None.")
+        return None
+    
+    # CLAHE
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    lab = cv2.cvtColor(frame, cv2.COLOR_RGB2LAB)
+    l, a, b = cv2.split(lab)
+    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+    cl = clahe.apply(l)
+    limg = cv2.merge((cl, a, b))
+    frame = cv2.cvtColor(limg, cv2.COLOR_LAB2RGB)
+
+    # Gamma correction
+    def adjust_gamma(image, gamma=1.0):
+        invGamma = 1.0 / gamma
+        table = np.array([((i / 255.0) ** invGamma) * 255
+            for i in np.arange(0, 256)]).astype("uint8")
+        return cv2.LUT(image, table)
+      
+    def calculate_gamma_hsv_method(img):
+        import math
+        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+        hue, sat, val = cv2.split(hsv)
+
+        mid = 0.5
+        mean = np.mean(val)
+        gamma = math.log(mid*255)/math.log(mean)
+        return gamma
+
+    gamma = calculate_gamma_hsv_method(frame)
+    frame = adjust_gamma(frame, gamma)
+
+    return cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)  # Convert back to BGR for OpenCV compatibility
 
 
 def create_texture_data(frame, scale_percent=60):
@@ -156,10 +216,33 @@ def create_texture_data(frame, scale_percent=60):
     dim = (width, height)
 
 
+
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
     frame = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
     data = frame.ravel()
     data = np.asfarray(data, dtype='f')
     texture_data = np.true_divide(data, 255.0)
 
     return frame.shape[1], frame.shape[0], texture_data
+
+hist_data = {
+    'b': [0]*256,
+    'g': [0]*256,
+    'r': [0]*256
+}
+
+def update_histogram(frame):
+    """Update the histogram data based on the current frame."""
+    global hist_data
+    if frame is None:
+        print("Error: Frame is None.")
+        return
+
+    # Calculate histogram for each channel
+    for i, col in enumerate(('b', 'g', 'r')):
+            histr = cv2.calcHist([frame], [i], None, [256], [0, 256])
+            hist_data[col] = histr.flatten()
+    for col in ('b', 'g', 'r'):
+            dpg.set_value(f"{col}_series", [list(range(256)), hist_data[col].tolist()])
+

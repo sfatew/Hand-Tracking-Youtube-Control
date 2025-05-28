@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch.nn.functional as F
+import torch
 
 # Non-local block using embedded gaussian
 # Code from

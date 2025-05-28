@@ -1,5 +1,5 @@
 .venv
 best_model
 __pycache__
-testimages - Copy/
-testimages/
+test_images/
+ztest.py
