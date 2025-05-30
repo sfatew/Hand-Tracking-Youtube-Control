@@ -67,6 +67,27 @@ python ui.py
 ## 🎮 Usage
 After the UI launches, open YouTube in your browser. Control playback hands-free using your gestures — no keyboard or mouse needed!
 
+These are the actions users can perform:
+
+| Gesture                        | Function                        |
+|-------------------------------|----------------------------------|
+| Rolling Hand Backward         | Previous chapter                 |
+| Rolling Hand Forward          | Next chapter                     |
+| Shaking Hand                  | Stop detect                      |
+| Sliding Two Fingers Down      | Decrease volume                  |
+| Sliding Two Fingers Up        | Increase volume                  |
+| Sliding Two Fingers Left      | Rewind 5 seconds                 |
+| Sliding Two Fingers Right     | Fast forward 5 seconds           |
+| Stop Sign                     | Pause / Play                     |
+| Swiping Down                  | Toggle captions                  |
+| Swiping Up                    | Next video                       |
+| Swiping Left                  | Previous browser tab             |
+| Swiping Right                 | Next browser tab                 |
+| Thumb Down                    | Mute / Unmute                    |
+| Thumb Up                      | Enter / Exit fullscreen          |
+| Turning Hand Clockwise        | Increase playback speed          |
+| Turning Hand Counterclockwise| Decrease playback speed          |
+
 ## ⚙️ Optional: Adjust Parameters
 You can customize a few settings for a better experience (default values are usually good):
 
