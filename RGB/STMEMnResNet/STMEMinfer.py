@@ -38,7 +38,9 @@ def load_model(model_path, device, parallel = False):
             new_state_dict[name] = v
         model.load_state_dict(new_state_dict)
 
-    model = model.eval().to(device)
+    if model is not None:
+        print(f"Model loaded from {model_path}")
+        
     return model
 
 def preprocess_vid(vid, frame_size=(128, 128), max_frames=36):
@@ -71,20 +73,19 @@ def preprocess_vid(vid, frame_size=(128, 128), max_frames=36):
 
 def classify(model, video_tensor, usage = "standalone"):
     '''Classify the input video using the STMEM model.'''
-    if usage == "standalone":
-        with torch.no_grad():
-            output = model(video_tensor)
-            return output.argmax(dim=1).item()  # Return the predicted class index
-    elif usage == "ensemble":
-        with torch.no_grad():
-            output = model(video_tensor)  # Raw logits
-            probs = F.softmax(output, dim=1)  # Convert to probabilities
-
-        pred_class = probs.argmax(dim=1).item()
-        confidence = probs.max(dim=1).values.item()
-        return pred_class, confidence
-    else:
-        raise ValueError("Invalid usage type. Use 'standalone' or 'ensemble'.")
+    with torch.no_grad():
+        output = model(video_tensor)  # Raw logits
+        probs = F.softmax(output, dim=1)
+        if usage == "standalone":
+            pred_class = probs.argmax(dim=1).item()
+            confidence = probs.max(dim=1).values.item()
+            return pred_class, confidence
+        elif usage == "ensemble":
+            pred_class = probs.argmax(dim=1).item()
+            confidence = probs.max(dim=1).values.item()
+            return pred_class, confidence, np.array(probs.squeeze(0).tolist())
+        else:
+            raise ValueError("Invalid usage type. Use 'standalone' or 'ensemble'.")
 
         
 def handle_load_vid(vid_path):
