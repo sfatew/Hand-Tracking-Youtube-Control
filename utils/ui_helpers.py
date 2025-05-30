@@ -3,15 +3,15 @@ import numpy as np
 import time
 import dearpygui.dearpygui as dpg
 from collections import deque
-from inference import MSSTNETModel, ResNetModel, STMEMnResNetModel, ShiftGCNModel
+from inference import MSSTNETModel, ResNetModel, STMEMnResNetModel, ShiftGCNModel, DSCNetEnsembleModel
 from utils.controller import ComputerController
 
 
 models = {
     "MSSTNET": MSSTNETModel(),
     "3DResNet": ResNetModel(),
-    "STMEM+ResNet": STMEMnResNetModel(),
-    "STMEM+ResNet (ensemble)": STMEMnResNetModel(usage="ensemble"),
+    "STMEM + TSM-ResNet": STMEMnResNetModel(),
+    "DSCNet (ensemble)": DSCNetEnsembleModel(),
     "ShiftGCN": ShiftGCNModel()
 }
 model_list = list(models.keys())
@@ -19,7 +19,7 @@ model_list = list(models.keys())
 class ProgramState:
     """A class to manage the state of the program."""
     def __init__(self, fps, skip_interval=1):
-        self.model_name = model_list[0]  # Default model name
+        self.model_name = model_list[3]  # Default model name
         self.fps = fps
         self.skip_interval = skip_interval
 
@@ -52,6 +52,8 @@ class ProgramState:
         elif self.model_name == "STMEM+ResNet":
             self.SEQUENCE_LENGTH = 36
         elif self.model_name == "GCN":
+            self.SEQUENCE_LENGTH = 37
+        elif self.model_name == "DSCNet (ensemble)":
             self.SEQUENCE_LENGTH = 37
 
         self.skip_interval = max(1, round(self.fps * self.time_to_collect_frames / self.SEQUENCE_LENGTH))
@@ -132,20 +134,20 @@ class ProgramState:
         """        
         assert self.is_predicting == True, "run_inference should not be called when is_predicting is False"
 
-        try:
-            frames = list(self.frame_buffer)
-            start_prediction_time = time.time()
-            label, conf = models[self.model_name].predict(frames)
-            self.pred_label = label
-            self.confidence = conf
-            self.last_prediction_time = time.time()
-            self.change_last_gesture_text(f"Last gesture: {self.pred_label} (Confidence: {self.confidence:.2f} by {self.model_name} in {self.last_prediction_time - start_prediction_time:.2f}s)")
-            
-            self.controller.perform_action(self.pred_label)
-        except Exception as e:
-            self.change_last_gesture_text(f"Error during inference")
-            self.last_prediction_time = time.time()
-            print(f"Prediction error: {e}")
+        #try:
+        frames = list(self.frame_buffer)
+        start_prediction_time = time.time()
+        label, conf = models[self.model_name].predict(frames)
+        self.pred_label = label
+        self.confidence = conf
+        self.last_prediction_time = time.time()
+        self.change_last_gesture_text(f"Last gesture: {self.pred_label} (Confidence: {self.confidence:.2f} by {self.model_name} in {self.last_prediction_time - start_prediction_time:.2f}s)")
+        
+        self.controller.perform_action(self.pred_label)
+        # except Exception as e:
+        #     self.change_last_gesture_text(f"Error during inference")
+        #     self.last_prediction_time = time.time()
+        #     print(f"Prediction error: {e}")
         
         self.is_predicting = False
 

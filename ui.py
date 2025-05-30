@@ -5,7 +5,7 @@ from utils.ui_helpers import *
 import threading
 
 dpg.create_context()
-dpg.create_viewport(title='Custom Title', width=600, height=500)
+dpg.create_viewport(title='Hand tracking computer control', width=600, height=500)
 dpg.setup_dearpygui()
 
 vid = cv.VideoCapture(0)

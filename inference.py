@@ -4,7 +4,7 @@ from utils.processing import output_process_msstnet, output_process_resnet, outp
 from utils.mediapipe_utils import init_holistic
 import Skeleton.MSSTNET.model_implement.MSSTNET as MSSTNET
 from RGB.STMEMnResNet.STMEMinfer import load_model, preprocess_vid, classify
-
+import pandas as pd
 import torch
 
 from sklearn.preprocessing import OneHotEncoder
@@ -19,7 +19,7 @@ class GestureModel:
             'Turning Hand Clockwise', 'Turning Hand Counterclockwise'
             ]
     
-    def padding_frames(self, frames, target_length):
+    def padding_frames_naive(self, frames, target_length):
         """Pad frames to the target length."""
         if len(frames) < target_length:
             last_frame = frames[-1]
@@ -28,6 +28,23 @@ class GestureModel:
         elif len(frames) > target_length:
             frames = frames[-target_length:]
         return frames
+    
+    def padding_frames(self, frames, target_length):
+        """Pad frames to the target length by repeating frames cyclically to avoid bias."""
+        current_length = len(frames)
+
+        if current_length < target_length:
+            # Repeat frames cyclically
+            repeat_times = (target_length - current_length) // current_length
+            remainder = (target_length - current_length) % current_length
+            padded_frames = frames + frames * repeat_times + frames[:remainder]
+            return padded_frames
+        elif current_length > target_length:
+            # Truncate from the beginning (keep most recent frames)
+            return frames[-target_length:]
+        else:
+            return frames
+
 
 class MSSTNETModel(GestureModel):
     def __init__(self):
@@ -45,14 +62,17 @@ class MSSTNETModel(GestureModel):
             for path in paths
         ]
 
-    def predict(self, frames):
+    def predict(self, frames, usage="standalone"):
         frames = self.padding_frames(frames, 37)
         sequences = output_process_msstnet(frames, self.holistic)
         # Run predictions on all 4 streams
-        outputs = [model.predict(seq) for model, seq in zip(self.models, sequences)]
+        outputs = [model.predict(seq) for model, seq in zip(self.models, sequences)] # shape: (4, 18)
         avg_output = sum(outputs) / len(outputs)
         final_index = np.argmax(avg_output)
-        return self.actions[final_index], float(np.max(avg_output))
+        if usage == "ensemble":
+            return self.actions[final_index], float(np.max(avg_output)), np.array(outputs)
+        else:
+            return self.actions[final_index], float(np.max(avg_output))
 
 class ResNetModel(GestureModel):
     def __init__(self, model_path='best_model/3D_RestNet50(after48epoch).keras'):
@@ -84,11 +104,11 @@ class STMEMnResNetModel(GestureModel):
         #frames = self.padding_frames(frames, 37)
         video_tensor = preprocess_vid(frames)
         if self.usage == "standalone":
-            final_index = classify(self.model, video_tensor)
-            return self.actions[final_index], -1.
-        elif self.usage == "ensemble":
-            final_index, confidence = classify(self.model, video_tensor, usage=self.usage)
+            final_index, confidence = classify(self.model, video_tensor)
             return self.actions[final_index], confidence
+        elif self.usage == "ensemble":
+            final_index, confidence, confidence_list = classify(self.model, video_tensor, usage=self.usage)
+            return self.actions[final_index], confidence, confidence_list
     
 class ShiftGCNModel(GestureModel):
     def __init__(self, model_path='best_model/best_model_shiftgcn.keras'):
@@ -107,3 +127,33 @@ class ShiftGCNModel(GestureModel):
         output = self.model.predict(sequences)
         final_index = np.argmax(output)
         return self.actions[final_index], float(np.max(output))
+    
+class DSCNetEnsembleModel(GestureModel):
+    def __init__(self, msst_f1_class_score_path='best_model/msst_f1_class_score.npy',
+                 validation_metrics_path='best_model/validation_metrics.csv'):
+        super().__init__()
+        self.msstnet_model = MSSTNETModel()
+        self.stmem_resnet_model = STMEMnResNetModel(usage="ensemble")
+        self.msst_f1 = np.load(msst_f1_class_score_path)
+        self.df = pd.read_csv(validation_metrics_path)
+
+        array_str = self.df['f1_per_class'].iloc[0]
+        self.rgb_f1 = np.fromstring(array_str.strip('[]"'), sep=' ')
+
+    def predict(self, frames):
+        dsc_score = np.zeros((18), dtype=float)
+        _, _, msst_score_list_temp = self.msstnet_model.predict(frames, usage="ensemble")
+        _, _, rgb_score = self.stmem_resnet_model.predict(frames)
+
+        msst_score_list = msst_score_list_temp.reshape(4, 18)  # Reshape to (4, 18)
+
+        for k in range(18):
+            sum_f1 = 0.0
+            for i in range(4):
+                sum_f1 += self.msst_f1[i][k]
+                dsc_score[k] += msst_score_list[i][k] * self.msst_f1[i][k]
+            dsc_score[k] += rgb_score[k] * self.rgb_f1[k]
+            sum_f1 += self.rgb_f1[k]
+            dsc_score[k] /= sum_f1
+        
+        return self.actions[np.argmax(dsc_score)], float(np.max(dsc_score))

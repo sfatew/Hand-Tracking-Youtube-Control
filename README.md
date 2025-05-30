@@ -22,15 +22,67 @@ The dataset used for training the model is Jester, which includes various video 
 You can download the dataset from Kaggle:  
 [20bn-jester Dataset on Kaggle](https://www.kaggle.com/datasets/toxicmender/20bn-jester)
 
-## Model
+## 🚀 How to Run
 
-The models used for recognizing hand gestures can be access via thesse link.
-To use these model, simnply create a model folder in the respected directory and put them in there
+### Prerequisites
+- Python 3.9 to 3.12
+- Webcam connected
 
-### MSSTNET Model  
-You can download or explore the MSSTNET model from:  
-[MSSTNET Model on Kaggle](https://www.kaggle.com/models/joemum/mssnet_model)
+Follow these steps to set up and run the **Hand-Tracking-Computer-Control** project:
 
-### STMEM+ResNet Model
-[STMEM+ResNet Model](https://drive.google.com/file/d/18S8gpzzmWoBoKfEFyigjb8G8pAp7gA_g/view?usp=sharing)
+### 1. **Clone the repository and install the required packages**  
+Open your terminal and run:
+```bash
+git clone https://github.com/sfatew/Hand-Tracking-Computer-Control.git
+cd Hand-Tracking-Computer-Control
 
+# We recommend creating a virtual environment before installing dependencies.
+python -m venv venv
+
+# Activate the virtual environment:
+venv\Scripts\activate # On Windows
+source venv/bin/activate # On macOS/Linux
+
+pip install -r requirements.txt
+```
+
+### 2. Download the pre-trained model
+
+- Download the `best_model` folder from [this link](https://drive.google.com/file/d/12gNNiUO1jzPNQfqIZ_4mgXttaTYKpfp2/view?usp=sharing).
+- Place the entire `best_model` folder inside the `Hand-Tracking-Computer-Control` directory.
+
+### 3. Connect your webcam
+Ensure your webcam is connected before running the program.
+
+### 4. Run the program
+Start the UI by running:
+
+```bash
+python ui.py
+```
+
+
+> ⏳ Note: It may take about 2 minutes for the UI to appear due to the model loading time. We're working on improving this delay.
+
+## 🎮 Usage
+After the UI launches, open YouTube in your browser. Control playback hands-free using your gestures — no keyboard or mouse needed!
+
+## ⚙️ Optional: Adjust Parameters
+You can customize a few settings for a better experience (default values are usually good):
+
+- Cooldown Time: Time between each prediction. Prevents duplicate gestures being detected too quickly.
+
+- Time to Collect Frame: Time window in which your action is captured.
+
+👉 Make sure your gesture happens after the cooldown and within this collection time.
+
+## 👥 Contributors
+
+Thanks to these awesome people who contributed:
+
+[![Contributors](https://img.shields.io/github/contributors/sfatew/Hand-Tracking-Computer-Control.svg)](https://github.com/sfatew/Hand-Tracking-Computer-Control/graphs/contributors)
+
+---
+
+⭐ If you like this project, please **give it a star** on GitHub!  
+[![GitHub stars](https://img.shields.io/github/stars/sfatew/Hand-Tracking-Computer-Control?style=social)](https://github.com/sfatew/Hand-Tracking-Computer-Control/stargazers)
