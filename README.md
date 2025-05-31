@@ -1,4 +1,4 @@
-# Hand-Tracking-Computer-Control
+# Hand-Tracking-Youtbe-Control
 
 This project leverages computer vision techniques to track hand motion and control a computer interface in a similar manner to a touchpad.
 
