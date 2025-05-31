@@ -3,6 +3,7 @@ import mediapipe as mp
 import numpy as np
 
 mp_holistic = mp.solutions.holistic
+mp_drawing = mp.solutions.drawing_utils
 
 # List of PoseLandmark we use in this project
 from mediapipe.python.solutions.holistic import PoseLandmark
@@ -32,6 +33,14 @@ def mediapipe_detection(image, model):
     image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     return image, res
+
+def draw_styled_landmarks(image, res):
+    # Draw pose connections
+    mp_drawing.draw_landmarks(image, res.pose_landmarks, mp_holistic.POSE_CONNECTIONS) 
+    # Draw left hand connections
+    mp_drawing.draw_landmarks(image, res.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS) 
+    # Draw right hand connections
+    mp_drawing.draw_landmarks(image, res.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
 
 def extract_keypoint(res):
     arr = []

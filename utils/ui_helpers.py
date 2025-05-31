@@ -19,7 +19,7 @@ model_list = list(models.keys())
 class ProgramState:
     """A class to manage the state of the program."""
     def __init__(self, fps, skip_interval=1):
-        self.model_name = model_list[3]  # Default model name
+        self.model_name = model_list[0]  # Default model name
         self.fps = fps
         self.skip_interval = skip_interval
 
@@ -49,9 +49,9 @@ class ProgramState:
             self.SEQUENCE_LENGTH = 37
         elif self.model_name == "3DResNet":
             self.SEQUENCE_LENGTH = 32
-        elif self.model_name == "STMEM+ResNet":
+        elif self.model_name == "STMEM + TSM-ResNet":
             self.SEQUENCE_LENGTH = 36
-        elif self.model_name == "GCN":
+        elif self.model_name == "ShiftGCN":
             self.SEQUENCE_LENGTH = 37
         elif self.model_name == "DSCNet (ensemble)":
             self.SEQUENCE_LENGTH = 37

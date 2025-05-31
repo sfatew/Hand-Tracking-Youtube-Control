@@ -29,13 +29,14 @@ class MSST_Layer(Layer):
         self.stride = stride
         self.filters = [filter1, filter2, filter3, filter4, filter5]
         self.concat = Concatenate()
-        
-        # Tạo các nhánh
-        self.branch1 = self._make_branch([(1, 1)], filter1, stride)
-        self.branch2 = self._make_branch([(1, 1), (3, 3)], [filter1, filter2], stride)
-        self.branch3 = self._make_branch([(1, 1), (5, 1), (1, 5)], [filter3]*3, stride)
-        self.branch4 = self._make_branch([(1, 1), (7, 1), (1, 7)], [filter4]*3, stride)
-        self.branch5 = self._make_branch([(1, 1), (11, 1), (1, 11)], [filter5]*3, stride)
+
+    def build(self, input_shape):
+        self.branch1 = self._make_branch([(1, 1)], self.filters[0], self.stride)
+        self.branch2 = self._make_branch([(1, 1), (3, 3)], [self.filters[0], self.filters[1]], self.stride)
+        self.branch3 = self._make_branch([(1, 1), (5, 1), (1, 5)], [self.filters[2]]*3, self.stride)
+        self.branch4 = self._make_branch([(1, 1), (7, 1), (1, 7)], [self.filters[3]]*3, self.stride)
+        self.branch5 = self._make_branch([(1, 1), (11, 1), (1, 11)], [self.filters[4]]*3, self.stride)
+        super().build(input_shape)
 
     def _make_branch(self, kernel_sizes, filters, first_stride):
         layers = []

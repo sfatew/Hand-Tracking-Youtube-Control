@@ -48,5 +48,5 @@ class ComputerController:
 if __name__ == "__main__":
     controller = ComputerController()
     # Example usage
-    print(controller.actions.get("Shaking Hand"))
+    # print(controller.actions.get("Shaking Hand"))
 
