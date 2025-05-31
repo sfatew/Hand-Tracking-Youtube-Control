@@ -28,12 +28,12 @@ You can download the dataset from Kaggle:
 - Python 3.9 to 3.12
 - Webcam connected
 
-Follow these steps to set up and run the **Hand-Tracking-Computer-Control** project:
+Follow these steps to set up and run the **Hand-Tracking-Youtube-Control** project:
 
 ### 1. **Clone the repository and install the required packages**  
 Open your terminal and run:
 ```bash
-git clone https://github.com/sfatew/Hand-Tracking-Computer-Control.git
+git clone https://github.com/sfatew/Hand-Tracking-Youtube-Control.git
 cd Hand-Tracking-Computer-Control
 
 # We recommend creating a virtual environment before installing dependencies.
