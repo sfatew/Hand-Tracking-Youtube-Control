@@ -97,6 +97,8 @@ You can customize a few settings for a better experience (default values are usu
 
 👉 Make sure your gesture happens after the cooldown and within this collection time.
 
+💡 We recommend using STMEM model since its perform the best
+
 ## 👥 Contributors
 
 Thanks to these awesome people who contributed:
